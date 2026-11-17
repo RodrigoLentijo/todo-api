@@ -24,6 +24,7 @@ app.post('/api/tareas', (req, res) => {
   res.status(201).json(nueva)
 })
 
+
 app.patch('/api/tareas/:id', (req, res) => {
   const id = Number(req.params.id)
   const tarea = tareas.find((t) => t.id === id)
