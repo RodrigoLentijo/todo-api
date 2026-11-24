@@ -8,7 +8,7 @@ import { prisma } from './prisma.js'
 import { enviarCodigo } from './correo.js'
 
 const app = express()
-const PUERTO = 3001
+const PUERTO = process.env.PORT ?? 3001
 const JWT_SECRET = process.env.JWT_SECRET
 
 const MINUTOS_VIGENCIA = 10
@@ -19,7 +19,8 @@ if (!JWT_SECRET) {
   throw new Error('Falta JWT_SECRET en el archivo .env')
 }
 
-app.use(cors())
+const ORIGENES = (process.env.FRONTEND_URL ?? 'http://localhost:5173').split(',')
+app.use(cors({ origin: ORIGENES }))
 app.use(express.json())
 
 function crearToken(usuario) {
@@ -153,6 +154,10 @@ app.post('/api/login', async (req, res) => {
   }
 
   res.json({ token: crearToken(usuario), email: usuario.email })
+})
+
+app.get('/api/salud', (req, res) => {
+  res.json({ ok: true })
 })
 
 app.get('/api/tareas', autenticar, async (req, res) => {
