@@ -177,33 +177,38 @@ app.post('/api/tareas', autenticar, async (req, res) => {
 
 app.patch('/api/tareas/:id', autenticar, async (req, res) => {
   const id = Number(req.params.id)
-  const tarea = await prisma.tarea.findFirst({
-    where: { id, usuarioId: req.usuarioId },
-  })
+  const completada = req.body.completada
 
-  if (!tarea) {
-    return res.status(404).json({ error: 'Tarea no encontrada' })
+  if (typeof completada !== 'boolean') {
+    return res.status(400).json({ error: 'completada debe ser true o false' })
   }
 
-  const actualizada = await prisma.tarea.update({
-    where: { id },
-    data: { completada: !tarea.completada },
-  })
-  res.json(actualizada)
+  try {
+    const actualizada = await prisma.tarea.update({
+      where: { id, usuarioId: req.usuarioId },
+      data: { completada },
+    })
+    res.json(actualizada)
+  } catch (error) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({ error: 'Tarea no encontrada' })
+    }
+    throw error
+  }
 })
 
 app.delete('/api/tareas/:id', autenticar, async (req, res) => {
   const id = Number(req.params.id)
-  const tarea = await prisma.tarea.findFirst({
-    where: { id, usuarioId: req.usuarioId },
-  })
 
-  if (!tarea) {
-    return res.status(404).json({ error: 'Tarea no encontrada' })
+  try {
+    await prisma.tarea.delete({ where: { id, usuarioId: req.usuarioId } })
+    res.status(204).send()
+  } catch (error) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({ error: 'Tarea no encontrada' })
+    }
+    throw error
   }
-
-  await prisma.tarea.delete({ where: { id } })
-  res.status(204).send()
 })
 
 app.listen(PUERTO, () => {
