@@ -1,7 +1,0 @@
--- CreateTable
-CREATE TABLE "Tarea" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "texto" TEXT NOT NULL,
-    "completada" BOOLEAN NOT NULL DEFAULT false,
-    "creadaEn" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
